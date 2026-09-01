@@ -1,0 +1,1091 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1B3A2B">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="房貸存摺">
+<title>房貸存摺</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root{
+  --cover: #1B3A2B;
+  --cover-dark: #12291E;
+  --gold: #C6A15B;
+  --gold-soft: #E4D2A4;
+  --paper: #FBF8F1;
+  --paper-line: #D8D0B8;
+  --ink: #22281F;
+  --ink-soft: #6B6656;
+  --stamp: #A63A2E;
+  --stamp-soft: #C97367;
+  --good: #3D6B4C;
+  --grace: #8A6A2E;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+body{
+  margin:0;
+  background: #E7E2D2;
+  font-family:'Noto Sans TC', sans-serif;
+  color:var(--ink);
+  padding: 28px 16px calc(80px + env(safe-area-inset-bottom));
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+  -webkit-text-size-adjust: 100%;
+}
+.wrap{max-width:800px;margin:0 auto;}
+
+/* ---------- Passbook cover ---------- */
+.cover{
+  background: linear-gradient(155deg, var(--cover) 0%, var(--cover-dark) 100%);
+  border-radius: 14px;
+  padding: 34px 30px 24px;
+  color: var(--gold-soft);
+  position:relative;
+  overflow:hidden;
+  box-shadow: 0 18px 40px -18px rgba(0,0,0,0.5), 0 2px 0 rgba(255,255,255,0.04) inset;
+}
+.cover::before{
+  content:"";
+  position:absolute; inset:8px;
+  border: 1px solid rgba(198,161,91,0.35);
+  border-radius: 8px;
+  pointer-events:none;
+}
+.cover-eyebrow{
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px;
+  letter-spacing: 3px;
+  color: rgba(228,210,164,0.65);
+  margin-bottom: 10px;
+}
+.cover-title{
+  font-family:'Noto Serif TC', serif;
+  font-weight:900;
+  font-size: 30px;
+  color: var(--gold);
+  margin: 0 0 4px;
+  letter-spacing: 2px;
+}
+.cover-sub{
+  font-size:13px;
+  color: rgba(228,210,164,0.75);
+  margin-bottom: 20px;
+}
+.cover-grid{
+  display:grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 14px 24px;
+  border-top: 1px dashed rgba(198,161,91,0.35);
+  padding-top: 16px;
+}
+.cover-item .label{font-size:11px; letter-spacing:1px; color:rgba(228,210,164,0.55); margin-bottom:4px;}
+.cover-item .value{font-family:'JetBrains Mono',monospace; font-size:17px; color: var(--gold-soft); font-weight:700;}
+
+.loan-pills{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px;}
+.loan-pill{
+  border:1px solid rgba(198,161,91,0.4);
+  border-radius:8px;
+  padding:8px 12px;
+  font-size:11px;
+  color: rgba(228,210,164,0.85);
+  flex:1;
+  min-width:150px;
+}
+.loan-pill .pn{font-family:'Noto Serif TC',serif; font-weight:700; color:var(--gold); font-size:12.5px; margin-bottom:3px;}
+.loan-pill .pd{font-family:'JetBrains Mono',monospace; line-height:1.7;}
+.loan-pill .grace-tag{color:var(--gold-soft); background:rgba(198,161,91,0.18); border-radius:4px; padding:1px 5px; font-size:10px; margin-left:4px;}
+
+.cover-edit{
+  margin-top:18px;
+  background:none;
+  border:1px solid rgba(198,161,91,0.5);
+  color: var(--gold-soft);
+  font-size:12.5px;
+  padding:10px 18px;
+  min-height:40px;
+  border-radius: 999px;
+  cursor:pointer;
+  letter-spacing:1px;
+}
+.cover-edit:hover{background:rgba(198,161,91,0.12);}
+
+/* ---------- Setup form ---------- */
+.setup-card{
+  background: var(--paper);
+  border-radius: 14px;
+  padding: 24px 22px 22px;
+  margin-top: 18px;
+  box-shadow: 0 10px 30px -18px rgba(0,0,0,0.35);
+  border: 1px solid var(--paper-line);
+}
+.setup-card h2{font-family:'Noto Serif TC',serif; font-size:18px; margin:0 0 4px;}
+.setup-card p.hint{font-size:12.5px; color:var(--ink-soft); margin:0 0 18px;}
+
+.loan-block{
+  border:1px solid var(--paper-line);
+  border-radius:10px;
+  padding:16px 16px 6px;
+  margin-bottom:16px;
+  position:relative;
+  background: rgba(255,255,255,0.5);
+}
+.loan-block .loan-block-title{
+  font-family:'Noto Serif TC',serif; font-weight:700; font-size:14px; margin-bottom:12px; color:var(--cover);
+}
+.field-row{display:grid; grid-template-columns: 1fr 1fr; gap:14px; margin-bottom:14px;}
+.field{display:flex; flex-direction:column; gap:6px;}
+.field.full{grid-column: 1 / -1;}
+.field label{font-size:12px; color:var(--ink-soft); font-weight:500;}
+.field input, .field select{
+  font-family:'JetBrains Mono', monospace;
+  font-size:16px;
+  padding:11px 10px;
+  border-radius:6px;
+  border:1px solid var(--paper-line);
+  background:#fff;
+  color: var(--ink);
+  min-height:44px;
+  width:100%;
+}
+.field select{font-family:'Noto Sans TC', sans-serif; font-size:15px;}
+.field input:focus, .field select:focus{outline:2px solid var(--good); outline-offset:1px;}
+.field .subhint{font-size:11px; color:#A29C87; margin-top:-2px;}
+
+/* ---------- Extra payment (lump-sum) card ---------- */
+.extra-card{
+  margin-top:16px;
+  background: var(--paper);
+  border: 1px solid var(--paper-line);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+.extra-card-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;}
+.extra-card-header h3{font-family:'Noto Serif TC',serif; font-size:15px; margin:0;}
+.extra-card p.hint{font-size:11.5px; color:var(--ink-soft); margin:0 0 12px;}
+.extra-add-btn{
+  background:none; border:1px dashed var(--paper-line); color:var(--good);
+  padding:8px 14px; border-radius:8px; font-size:12.5px; cursor:pointer;
+}
+.extra-add-btn:hover{border-color:var(--good); background:rgba(61,107,76,0.06);}
+.extra-total-row{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-top:12px; padding:10px 12px; background:rgba(166,58,46,0.06);
+  border-radius:8px;
+}
+.extra-total-row .et-label{font-size:11.5px; color:var(--ink-soft);}
+.extra-total-row .et-value{font-family:'JetBrains Mono',monospace; font-weight:700; font-size:16px; color:var(--stamp);}
+.extra-details{margin-top:8px;}
+.extra-details summary{
+  cursor:pointer; font-size:12px; color:var(--good); list-style:none; user-select:none;
+  padding:6px 2px; display:flex; align-items:center; gap:4px;
+}
+.extra-details summary::-webkit-details-marker{display:none;}
+.extra-details summary::before{content:"▸"; font-size:10px; transition:transform 0.15s;}
+.extra-details[open] summary::before{transform:rotate(90deg);}
+.extra-list{margin-top:10px; display:flex; flex-direction:column; gap:8px;}
+.extra-item{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  border:1px dashed var(--paper-line); border-radius:8px; padding:9px 12px; font-size:12px;
+}
+.extra-item .ei-main{font-family:'JetBrains Mono',monospace; font-weight:700;}
+.extra-item .ei-sub{font-size:11px; color:var(--ink-soft); margin-top:2px;}
+.extra-item .ei-del{background:none; border:none; color:var(--stamp); font-size:11px; cursor:pointer; flex-shrink:0;}
+.extra-badge{
+  font-size:9.5px; color:var(--stamp); background:rgba(166,58,46,0.1);
+  border-radius:4px; padding:1px 4px; margin-left:4px; font-family:'Noto Sans TC',sans-serif;
+}
+tr.extra-row td{
+  background: rgba(166,58,46,0.06);
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:11.5px;
+  color: var(--stamp);
+  text-align:center;
+  padding:7px 10px;
+  border-bottom:1px dashed rgba(166,58,46,0.3);
+}
+tr.extra-row .extra-badge{margin-left:0; margin-right:4px;}
+
+.btn-primary{
+  background: var(--cover);
+  color: var(--gold-soft);
+  border:none;
+  padding: 11px 22px;
+  border-radius: 8px;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  letter-spacing:1px;
+  margin-top:4px;
+}
+.btn-primary:hover{background:var(--cover-dark);}
+.btn-secondary{
+  background:none;
+  border:1px solid var(--paper-line);
+  color: var(--ink-soft);
+  padding:10px 18px;
+  border-radius:8px;
+  font-size:13px;
+  cursor:pointer;
+  margin-left:8px;
+}
+.error-msg{color:var(--stamp); font-size:12px; margin-top:8px; display:none;}
+
+/* ---------- Progress strip ---------- */
+.progress-strip{
+  display:grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 1px;
+  background: var(--paper-line);
+  border-radius: 12px;
+  overflow:hidden;
+  margin-top:16px;
+  border: 1px solid var(--paper-line);
+}
+.progress-cell{background:var(--paper); padding:16px 14px;}
+.progress-cell .label{font-size:11px; color:var(--ink-soft); letter-spacing:1px; margin-bottom:6px;}
+.progress-cell .num{font-family:'JetBrains Mono',monospace; font-weight:700; font-size:18px;}
+.progress-bar-track{
+  height:6px; background:var(--paper-line); border-radius:99px; margin-top:14px; overflow:hidden;
+}
+.progress-bar-fill{height:100%; background: linear-gradient(90deg, var(--good), var(--cover)); border-radius:99px;}
+
+/* ---------- Next due card ---------- */
+.next-due{
+  margin-top:16px;
+  background: var(--paper);
+  border: 1px solid var(--paper-line);
+  border-left: 4px solid var(--stamp);
+  border-radius: 10px;
+  padding: 16px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.next-due .nd-info .nd-title{font-size:12px; color:var(--ink-soft); margin-bottom:4px;}
+.next-due .nd-info .nd-main{font-family:'JetBrains Mono',monospace; font-size:16px; font-weight:700;}
+.next-due .nd-info .nd-sub{font-size:11px; color:var(--ink-soft); margin-top:3px;}
+.next-due.all-done{border-left-color: var(--good);}
+
+/* ---------- Ledger ---------- */
+.ledger{
+  margin-top: 22px;
+  background: var(--paper);
+  border-radius: 12px;
+  border: 1px solid var(--paper-line);
+  overflow:hidden;
+}
+.ledger-header{
+  padding: 16px 18px 10px;
+  display:flex; align-items:baseline; justify-content:space-between;
+}
+.ledger-header h3{font-family:'Noto Serif TC',serif; font-size:16px; margin:0;}
+.ledger-header span{font-size:11px; color:var(--ink-soft); font-family:'JetBrains Mono',monospace;}
+.ledger-scroll{max-height: 520px; overflow-y:auto; overflow-x:auto; -webkit-overflow-scrolling:touch;}
+table{width:100%; border-collapse:collapse; font-size:12.5px; min-width:560px;}
+thead th:first-child, tbody td:first-child{
+  position:sticky; left:0; background:inherit; z-index:1;
+}
+thead th:first-child{background:#F1ECDD;}
+tbody tr.paid-row td:first-child{background:#F6F2E4;}
+tbody tr.future-row td:first-child{background:var(--paper);}
+tbody tr:not(.paid-row):not(.future-row) td:first-child{background:var(--paper);}
+thead th{
+  position:sticky; top:0; background: #F1ECDD;
+  text-align:left; padding:8px 10px; font-size:11px; color:var(--ink-soft);
+  border-bottom:1px solid var(--paper-line); font-weight:600;
+}
+tbody td{padding:9px 10px; border-bottom:1px dashed var(--paper-line); font-family:'JetBrains Mono',monospace; vertical-align:middle;}
+tbody tr.paid-row{background: rgba(61,107,76,0.05);}
+tbody tr.future-row td{color:#B4AE97;}
+.mono-num{white-space:nowrap;}
+.split-detail{font-family:'Noto Sans TC',sans-serif; font-size:10px; color:var(--ink-soft); margin-top:3px; line-height:1.5;}
+.grace-badge{
+  font-size:9.5px; color:var(--grace); background:rgba(138,106,46,0.12);
+  border-radius:4px; padding:1px 4px; margin-left:4px; font-family:'Noto Sans TC',sans-serif;
+}
+.status-cell{position:relative; text-align:center;}
+.stamp{
+  display:inline-block;
+  border:2px solid var(--stamp);
+  color: var(--stamp);
+  font-family:'Noto Serif TC',serif;
+  font-weight:900;
+  font-size:11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transform: rotate(-8deg);
+  letter-spacing:1px;
+  opacity:0.9;
+}
+.mark-btn{
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:12.5px;
+  background: var(--cover);
+  color: var(--gold-soft);
+  border:none;
+  padding: 9px 14px;
+  border-radius: 6px;
+  cursor:pointer;
+  min-height:38px;
+  white-space:nowrap;
+}
+.mark-btn:hover{background:var(--cover-dark);}
+.unmark-btn{
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:11.5px;
+  background:none;
+  border:1px solid var(--paper-line);
+  color: var(--ink-soft);
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor:pointer;
+  margin-top:5px;
+  min-height:32px;
+}
+.note-text{font-family:'Noto Sans TC',sans-serif; font-size:11px; color:var(--ink-soft);}
+
+/* ---------- Modal ---------- */
+.overlay{
+  position:fixed; inset:0; background:rgba(20,25,18,0.5);
+  display:none; align-items:center; justify-content:center; padding:16px; z-index:50;
+}
+.overlay.show{display:flex;}
+.modal{
+  background:var(--paper); border-radius:12px; padding:22px; width:100%; max-width:400px;
+  border:1px solid var(--paper-line);
+  max-height:90vh; overflow-y:auto;
+}
+.modal h3{font-family:'Noto Serif TC',serif; margin:0 0 4px; font-size:16px;}
+.modal p.sub{font-size:12px; color:var(--ink-soft); margin:0 0 16px; line-height:1.6;}
+.modal .field{margin-bottom:12px;}
+.modal-actions{display:flex; justify-content:flex-end; margin-top:6px;}
+
+footer.note{
+  text-align:center; font-size:11px; color:#9A947E; margin-top:22px; line-height:1.7;
+}
+
+@media (max-width:480px){
+  body{padding-top:16px;}
+  .cover{padding:26px 20px 22px;}
+  .cover-title{font-size:23px;}
+  .field-row{grid-template-columns:1fr;}
+  .progress-strip{grid-template-columns:1fr;}
+  .next-due{flex-direction:column; align-items:stretch;}
+  .next-due .mark-btn{width:100%; padding:12px;}
+  .extra-card-header{flex-direction:column; align-items:stretch; gap:10px;}
+  .extra-add-btn{width:100%; padding:11px;}
+  .extra-item{flex-direction:column; align-items:flex-start; gap:8px;}
+  .extra-item .ei-del{align-self:flex-end;}
+  table{font-size:11.5px;}
+  .modal{max-width:100%; border-radius:14px 14px 0 0; margin-top:auto;}
+  .overlay{align-items:flex-end; padding:0;}
+  .modal-actions{flex-direction:column-reverse; gap:8px;}
+  .modal-actions button{width:100%; min-height:44px;}
+}
+@media (max-width:360px){
+  .cover-title{font-size:20px;}
+  .cover-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<div class="overlay" id="overlay">
+  <div class="modal" id="modalBody"></div>
+</div>
+<input type="file" id="import-file-input" accept="application/json" style="display:none">
+
+<script>
+const STORAGE_KEY = 'mortgage-tracker-data';
+let state = { config: null, payments: {}, extraPayments: [] };
+let loaded = false;
+let draftLoans = null; // used while editing setup form
+
+function fmtMoney(n){
+  n = Math.round(n);
+  return 'NT$ ' + n.toLocaleString('zh-TW');
+}
+function fmtDate(d){
+  const dt = (d instanceof Date) ? d : new Date(d);
+  return dt.getFullYear()+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+String(dt.getDate()).padStart(2,'0');
+}
+function addMonths(dateStr, n){
+  const d = new Date(dateStr);
+  const day = d.getDate();
+  d.setDate(1);
+  d.setMonth(d.getMonth()+n);
+  const lastDay = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+  d.setDate(Math.min(day, lastDay));
+  return d;
+}
+function escapeHtml(s){
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+async function loadData(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      state = JSON.parse(raw);
+      if(!state.payments) state.payments = {};
+      if(!state.extraPayments) state.extraPayments = [];
+    }
+  }catch(e){ console.warn('讀取本機資料失敗(可能是無痕模式或瀏覽器限制):', e); }
+  loaded = true;
+  render();
+}
+async function saveData(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }catch(e){
+    console.error('儲存失敗', e);
+    alert('資料儲存失敗,可能是瀏覽器的無痕模式或儲存空間已滿。建議先用「匯出備份」把資料存下來。');
+  }
+}
+
+function downloadBackup(){
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const today = new Date().toISOString().slice(0,10);
+  a.download = `mortgage-passbook-backup-${today}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function triggerImport(){
+  const input = document.getElementById('import-file-input');
+  if(input) input.click();
+}
+
+async function handleImportFile(ev){
+  const file = ev.target.files && ev.target.files[0];
+  if(!file) return;
+  try{
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    if(!parsed || typeof parsed !== 'object'){ throw new Error('格式錯誤'); }
+    if(!confirm('匯入備份會覆蓋目前存摺裡的所有資料,確定要繼續嗎?')){ ev.target.value=''; return; }
+    state = parsed;
+    if(!state.payments) state.payments = {};
+    if(!state.extraPayments) state.extraPayments = [];
+    await saveData();
+    render();
+  }catch(e){
+    alert('匯入失敗,請確認選的是這個工具匯出的備份檔(.json)。');
+  }
+  ev.target.value = '';
+}
+
+/* ---------- schedule engine ---------- */
+function buildLoanSchedule(loan, extras){
+  extras = (extras||[]).slice().sort((a,b)=>a.afterPeriod-b.afterPeriod);
+  let extraIdx = 0;
+  let extrasAppliedCount = 0; // once >0, the grace-period override is stale and we fall back to real interest calc
+  const n = loan.termMonths;
+  const g = Math.min(loan.graceMonths || 0, n);
+  const r = loan.annualRate/100/12;
+  const amortN = n - g;
+
+  // baseline monthly payment for the amortization phase, computed from the ORIGINAL
+  // balance (or the manual override) before any lump-sum extra payments are applied.
+  const baselineAmortPayment = loan.amortOverride
+    ? parseFloat(loan.amortOverride)
+    : (r === 0 ? loan.principal / amortN : loan.principal * r * Math.pow(1+r, amortN) / (Math.pow(1+r, amortN) - 1));
+  let currentAmortPayment = baselineAmortPayment;
+
+  let balance = loan.principal;
+  const rows = [];
+  for(let i=0; i<=n; i++){
+    let isFinal = false;
+    if(i >= 1){
+      let interest, principalPortion, payment, isGrace = false;
+      if(i <= g){
+        isGrace = true;
+        if(loan.graceOverride && extrasAppliedCount === 0){
+          payment = parseFloat(loan.graceOverride);
+          interest = payment;
+          principalPortion = 0;
+        } else {
+          // no override given, or a lump-sum payment has already reduced the balance:
+          // fall back to real interest-only calc on the current outstanding balance
+          interest = r === 0 ? 0 : balance * r;
+          principalPortion = 0;
+          payment = interest;
+        }
+      } else {
+        interest = r === 0 ? 0 : balance * r;
+        principalPortion = currentAmortPayment - interest;
+        if(principalPortion >= balance){
+          principalPortion = balance;
+          isFinal = true;
+        }
+        payment = principalPortion + interest;
+        balance = Math.max(0, balance - principalPortion);
+      }
+      rows.push({ period: i, dueDate: addMonths(loan.startDate, i), principalPortion, interest, payment, balance, isGrace });
+      if(isFinal) break;
+    }
+
+    // apply any lump-sum extra payments that take effect right after this period
+    // (i === 0 covers a payment made before the very first due date)
+    let payoffAfterExtra = false;
+    while(extraIdx < extras.length && extras[extraIdx].afterPeriod === i){
+      const ex = extras[extraIdx]; extraIdx++;
+      const applied = Math.min(ex.amount, balance);
+      balance = Math.max(0, balance - applied);
+      extrasAppliedCount++;
+      if(balance <= 0){ payoffAfterExtra = true; continue; }
+      if(ex.mode === 'reducepayment'){
+        // periods still left in the amortization phase after this point, whether the
+        // extra payment landed during the grace period (or before it) or after it
+        const remaining = i < g ? amortN : (n - i);
+        if(remaining > 0){
+          currentAmortPayment = r === 0 ? balance / remaining : balance * r * Math.pow(1+r, remaining) / (Math.pow(1+r, remaining) - 1);
+        }
+      }
+      // 'reduceterm' mode: leave currentAmortPayment unchanged, loan naturally finishes early
+    }
+    if(payoffAfterExtra) break;
+  }
+  return rows;
+}
+
+// finds the latest period whose due date falls on or before the given date;
+// returns 0 if the date is before the very first due date
+function periodForDate(combinedRows, dateStr){
+  const d = new Date(dateStr);
+  let period = 0;
+  for(const r of combinedRows){
+    if(r.dueDate <= d){ period = r.period; } else { break; }
+  }
+  return period;
+}
+
+function buildCombined(loans, extrasAll){
+  extrasAll = extrasAll || [];
+  const perLoan = loans.map((loan, idx) => buildLoanSchedule(loan, extrasAll.filter(e => e.loanIndex === idx)));
+  const maxN = Math.max(...loans.map(l => l.termMonths));
+  const combined = [];
+  for(let i=1; i<=maxN; i++){
+    let principalPortion=0, interest=0, payment=0, balance=0;
+    const parts = [];
+    loans.forEach((loan, idx) => {
+      const row = perLoan[idx][i-1];
+      if(row){
+        principalPortion += row.principalPortion;
+        interest += row.interest;
+        payment += row.payment;
+        balance += row.balance;
+        parts.push({ name: loan.name, payment: row.payment, isGrace: row.isGrace });
+      }
+    });
+    combined.push({
+      period: i,
+      dueDate: addMonths(loans[0].startDate, i),
+      principalPortion, interest, payment, balance, parts,
+      extras: extrasAll.filter(e => e.afterPeriod === i)
+    });
+  }
+  return { perLoan, combined };
+}
+
+/* ---------- render ---------- */
+function render(){
+  const app = document.getElementById('app');
+  if(!loaded){ app.innerHTML = ''; return; }
+  if(!state.config || !state.config.loans || state.config.loans.length === 0){
+    draftLoans = state.config ? JSON.parse(JSON.stringify(state.config.loans)) : defaultLoans();
+    app.innerHTML = renderSetup() + renderBackupCard();
+    bindSetup();
+    bindBackup();
+    return;
+  }
+  const { combined } = buildCombined(state.config.loans, state.extraPayments);
+  app.innerHTML = renderCover(state.config.loans, combined)
+    + renderProgress(combined)
+    + renderNextDue(combined)
+    + renderExtraPayments(state.config.loans, state.extraPayments, combined)
+    + renderLedger(combined, state.config.loans)
+    + renderBackupCard();
+  bindMain(combined);
+  bindBackup();
+}
+
+function renderBackupCard(){
+  return `
+    <div class="extra-card">
+      <div class="extra-card-header">
+        <h3>資料備份</h3>
+      </div>
+      <p class="hint">這份存摺的資料只存在目前這個瀏覽器裡。換手機、換瀏覽器、清除瀏覽資料前,記得先匯出備份;要換到新裝置時再匯入回來就好。</p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn-secondary" id="backup-export" style="margin-left:0;">匯出備份(JSON)</button>
+        <button class="btn-secondary" id="backup-import" style="margin-left:0;">匯入備份</button>
+      </div>
+    </div>
+  `;
+}
+
+function bindBackup(){
+  const exportBtn = document.getElementById('backup-export');
+  if(exportBtn) exportBtn.onclick = downloadBackup;
+  const importBtn = document.getElementById('backup-import');
+  if(importBtn) importBtn.onclick = triggerImport;
+}
+
+function defaultLoans(){
+  const today = new Date().toISOString().slice(0,10);
+  return [
+    { name:'', principal:'', annualRate:'', termMonths:'', graceMonths:'0', startDate: today, graceOverride:'', amortOverride:'' },
+    { name:'', principal:'', annualRate:'', termMonths:'', graceMonths:'0', startDate: today }
+  ];
+}
+
+function renderSetup(){
+  const blocks = draftLoans.map((l, idx) => `
+    <div class="loan-block" data-idx="${idx}">
+      <div class="loan-block-title">貸款 ${idx+1}</div>
+      <div class="field-row">
+        <div class="field full">
+          <label>貸款名稱(選填)</label>
+          <input data-field="name" data-idx="${idx}" type="text" placeholder="例如:主貸款" value="${l.name||''}">
+        </div>
+        <div class="field">
+          <label>貸款本金(元)</label>
+          <input data-field="principal" data-idx="${idx}" type="number" placeholder="例如:5000000" value="${l.principal||''}">
+        </div>
+        <div class="field">
+          <label>年利率(%)</label>
+          <input data-field="annualRate" data-idx="${idx}" type="number" step="0.001" placeholder="例如:2.1" value="${l.annualRate||''}">
+        </div>
+        <div class="field">
+          <label>貸款期數(月)</label>
+          <input data-field="termMonths" data-idx="${idx}" type="number" placeholder="360(30年)" value="${l.termMonths||''}">
+        </div>
+        <div class="field">
+          <label>寬限期(月,無則填0)</label>
+          <input data-field="graceMonths" data-idx="${idx}" type="number" placeholder="0" value="${l.graceMonths ?? '0'}">
+          <div class="subhint">寬限期內僅繳息、不還本金</div>
+        </div>
+        <div class="field full">
+          <label>起始月份</label>
+          <input data-field="startDate" data-idx="${idx}" type="date" value="${l.startDate||''}">
+        </div>
+        <div class="field">
+          <label>寬限期每期金額(選填)</label>
+          <input data-field="graceOverride" data-idx="${idx}" type="number" placeholder="留空則自動試算" value="${l.graceOverride||''}">
+          <div class="subhint">若銀行提供的金額跟試算有落差,填這裡以你的為準</div>
+        </div>
+        <div class="field">
+          <label>寬限期後每期金額(選填)</label>
+          <input data-field="amortOverride" data-idx="${idx}" type="number" placeholder="留空則自動試算" value="${l.amortOverride||''}">
+          <div class="subhint">同上,以銀行提供數字為準</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  return `
+    <div class="cover">
+      <div class="cover-eyebrow">M O R T G A G E &nbsp; P A S S B O O K</div>
+      <div class="cover-title">房貸存摺</div>
+      <div class="cover-sub">設定貸款條件,之後專心記錄每期還款</div>
+    </div>
+    <div class="setup-card">
+      <h2>貸款條件設定</h2>
+      <p class="hint">這裡只需要設定一次。系統會依等額本息試算每期應繳金額(寬限期內僅繳利息、本金不攤還,寬限期結束後以剩餘本金重新計算),設定完成後主畫面就是你的還款紀錄本。</p>
+      ${blocks}
+      <button class="btn-primary" id="f-submit">儲存,開始記錄還款</button>
+      ${state.config ? '<button class="btn-secondary" id="f-cancel">取消</button>' : ''}
+      <div class="error-msg" id="f-error"></div>
+    </div>
+    <footer class="note">試算結果僅供參考,實際還款金額請以貸款銀行提供之數字為準。</footer>
+  `;
+}
+
+function bindSetup(){
+  document.querySelectorAll('[data-field]').forEach(inp => {
+    inp.oninput = () => {
+      const idx = parseInt(inp.dataset.idx);
+      const field = inp.dataset.field;
+      draftLoans[idx][field] = inp.value;
+    };
+  });
+  document.getElementById('f-submit').onclick = () => {
+    const err = document.getElementById('f-error');
+    const loans = [];
+    for(const l of draftLoans){
+      const principal = parseFloat(l.principal);
+      const rate = parseFloat(l.annualRate);
+      const term = parseInt(l.termMonths);
+      const grace = parseInt(l.graceMonths || 0);
+      if(!principal || principal<=0 || isNaN(rate) || rate<0 || !term || term<=0 || !l.startDate || grace<0 || grace>=term){
+        err.style.display='block';
+        err.textContent = '請確認每筆貸款的本金、利率、期數與起始月份皆已正確填寫,且寬限期須小於總期數。';
+        return;
+      }
+      loans.push({
+        name: (l.name||'').trim() || ('貸款'+(loans.length+1)),
+        principal, annualRate: rate, termMonths: term, graceMonths: grace, startDate: l.startDate,
+        graceOverride: l.graceOverride ? parseFloat(l.graceOverride) : null,
+        amortOverride: l.amortOverride ? parseFloat(l.amortOverride) : null
+      });
+    }
+    state.config = { loans };
+    saveData();
+    render();
+  };
+  const cancelBtn = document.getElementById('f-cancel');
+  if(cancelBtn) cancelBtn.onclick = () => render();
+}
+
+function renderCover(loans, combined){
+  const totalPrincipal = loans.reduce((s,l)=>s+l.principal,0);
+  const totalInterest = combined.reduce((s,r)=>s+r.interest,0);
+  const firstPayment = combined[0] ? combined[0].payment : 0;
+  const maxTerm = Math.max(...loans.map(l=>l.termMonths));
+  const pills = loans.map(l => `
+    <div class="loan-pill">
+      <div class="pn">${escapeHtml(l.name)}${l.graceMonths>0 ? `<span class="grace-tag">寬限期 ${l.graceMonths} 月</span>` : ''}</div>
+      <div class="pd">${fmtMoney(l.principal)}<br>${l.annualRate}% · ${l.termMonths}期(${Math.round(l.termMonths/12)}年)</div>
+    </div>
+  `).join('');
+  return `
+    <div class="cover">
+      <div class="cover-eyebrow">M O R T G A G E &nbsp; P A S S B O O K</div>
+      <div class="cover-title">房貸存摺</div>
+      <div class="cover-sub">共 ${loans.length} 筆貸款 · 起始月份 ${fmtDate(loans[0].startDate)}</div>
+      <div class="cover-grid">
+        <div class="cover-item"><div class="label">貸款本金</div><div class="value">${fmtMoney(totalPrincipal)}</div></div>
+        <div class="cover-item"><div class="label">預估總利息</div><div class="value">${fmtMoney(totalInterest)}</div></div>
+        <div class="cover-item"><div class="label">目前每期應繳</div><div class="value">${fmtMoney(firstPayment)}</div></div>
+        <div class="cover-item"><div class="label">最長期數</div><div class="value">${maxTerm} 期</div></div>
+      </div>
+      <div class="loan-pills">${pills}</div>
+      <button class="cover-edit" id="edit-cover">編輯設定</button>
+    </div>
+  `;
+}
+
+function renderProgress(rows){
+  const total = rows.length;
+  const paidPeriods = Object.keys(state.payments).map(Number).filter(p => state.payments[p] && state.payments[p].paid);
+  const paidCount = paidPeriods.length;
+  let principalPaid = 0;
+  const totalPrincipal = state.config.loans.reduce((s,l)=>s+l.principal,0);
+  paidPeriods.forEach(p => {
+    const row = rows[p-1];
+    if(row) principalPaid += row.principalPortion;
+  });
+  const remaining = Math.max(0, totalPrincipal - principalPaid);
+  const pct = total ? Math.min(100, (paidCount/total*100)) : 0;
+  return `
+    <div class="progress-strip">
+      <div class="progress-cell">
+        <div class="label">已繳期數</div>
+        <div class="num">${paidCount} / ${total}</div>
+      </div>
+      <div class="progress-cell">
+        <div class="label">已繳本金</div>
+        <div class="num">${fmtMoney(principalPaid)}</div>
+      </div>
+      <div class="progress-cell">
+        <div class="label">剩餘本金</div>
+        <div class="num">${fmtMoney(remaining)}</div>
+      </div>
+    </div>
+    <div class="progress-bar-track"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+  `;
+}
+
+function renderNextDue(rows){
+  const nextRow = rows.find(r => !(state.payments[r.period] && state.payments[r.period].paid));
+  if(!nextRow){
+    return `<div class="next-due all-done">
+      <div class="nd-info"><div class="nd-title">狀態</div><div class="nd-main">🎉 所有期數皆已登記還款</div></div>
+    </div>`;
+  }
+  const detail = nextRow.parts.map(p => `${escapeHtml(p.name)} ${fmtMoney(p.payment)}${p.isGrace?'(僅繳息)':''}`).join(' + ');
+  return `
+    <div class="next-due">
+      <div class="nd-info">
+        <div class="nd-title">下一期待繳 · 第 ${nextRow.period} 期</div>
+        <div class="nd-main">${fmtDate(nextRow.dueDate)} · ${fmtMoney(nextRow.payment)}</div>
+        <div class="nd-sub">${detail}</div>
+      </div>
+      <button class="mark-btn" data-period="${nextRow.period}" id="quick-mark">登記本期已繳</button>
+    </div>
+  `;
+}
+
+function renderExtraPayments(loans, extras, combined){
+  extras = extras || [];
+  const modeLabel = m => m === 'reducepayment' ? '降低月付金' : '縮短年限';
+  const total = extras.reduce((s,e) => s + e.amount, 0);
+  const items = extras.slice().sort((a,b)=>a.afterPeriod-b.afterPeriod).map(ex => {
+    const loanName = loans[ex.loanIndex] ? loans[ex.loanIndex].name : '未知貸款';
+    return `
+      <div class="extra-item">
+        <div>
+          <div class="ei-main">${fmtMoney(ex.amount)}</div>
+          <div class="ei-sub">${escapeHtml(loanName)} · 第 ${ex.afterPeriod} 期一併多還 · ${modeLabel(ex.mode)}${ex.date ? ' · '+fmtDate(ex.date):''}${ex.note ? ' · '+escapeHtml(ex.note):''}</div>
+        </div>
+        <button class="ei-del" data-extra-id="${ex.id}">刪除</button>
+      </div>
+    `;
+  }).join('');
+  return `
+    <div class="extra-card">
+      <div class="extra-card-header">
+        <h3>大筆還款(提前還本)</h3>
+        <button class="extra-add-btn" id="add-extra">+ 登記大筆還款</button>
+      </div>
+      <p class="hint">除了每期固定金額外,若有額外多還一筆本金(例如年終獎金部分還款),可以在這裡登記,系統會依你選擇的方式重新試算後續攤還表。</p>
+      ${extras.length ? `
+        <div class="extra-total-row">
+          <span class="et-label">已登記 ${extras.length} 筆 · 大筆還款總金額</span>
+          <span class="et-value">${fmtMoney(total)}</span>
+        </div>
+        <details class="extra-details">
+          <summary>查看每一筆明細</summary>
+          <div class="extra-list">${items}</div>
+        </details>
+      ` : ''}
+    </div>
+  `;
+}
+
+function renderLedger(rows, loans){
+  const preExtras = (state.extraPayments || []).filter(e => e.afterPeriod === 0);
+  const preRowsHtml = preExtras.map(e => {
+    const loanName = loans[e.loanIndex] ? loans[e.loanIndex].name : '';
+    const modeLabel = e.mode === 'reducepayment' ? '降低月付金' : '縮短年限';
+    return `
+      <tr class="extra-row">
+        <td colspan="6">
+          <span class="extra-badge">大筆還款</span>${escapeHtml(loanName)} 多還 ${fmtMoney(e.amount)} · ${modeLabel}${e.date ? ' · '+fmtDate(e.date):''}${e.note ? ' · '+escapeHtml(e.note):''}
+        </td>
+      </tr>
+    `;
+  }).join('');
+  const rowsHtml = rows.map(r => {
+    const pay = state.payments[r.period];
+    const isPaid = pay && pay.paid;
+    const isFuture = r.dueDate > new Date() && !isPaid;
+    const splitDetail = r.parts.length > 1
+      ? `<div class="split-detail">${r.parts.map(p => `${escapeHtml(p.name)} ${fmtMoney(p.payment)}${p.isGrace ? '<span class=\"grace-badge\">寬限期</span>':''}`).join(' + ')}</div>`
+      : (r.parts[0] && r.parts[0].isGrace ? `<div class="split-detail"><span class="grace-badge">寬限期・僅繳息</span></div>` : '');
+    const mainRow = `
+      <tr class="${isPaid ? 'paid-row' : (isFuture ? 'future-row':'')}">
+        <td class="mono-num">${r.period}</td>
+        <td class="mono-num">${fmtDate(r.dueDate)}</td>
+        <td class="mono-num">${fmtMoney(r.principalPortion)}</td>
+        <td class="mono-num">${fmtMoney(r.interest)}</td>
+        <td class="mono-num">${fmtMoney(r.payment)}${splitDetail}</td>
+        <td class="status-cell">
+          ${isPaid
+            ? `<span class="stamp">已繳訖</span><br><button class="unmark-btn" data-period="${r.period}" data-action="unmark">取消登記</button>`
+            : `<button class="mark-btn" data-period="${r.period}" data-action="mark">登記已繳</button>`
+          }
+          ${isPaid && pay.note ? `<div class="note-text">${escapeHtml(pay.note)}</div>` : ''}
+          ${isPaid && pay.date ? `<div class="note-text">實繳日 ${fmtDate(pay.date)}${Math.round(pay.amount) != Math.round(r.payment) ? ' · '+fmtMoney(pay.amount):''}</div>` : ''}
+        </td>
+      </tr>
+    `;
+    const extraRows = (r.extras && r.extras.length) ? r.extras.map(e => {
+      const loanName = loans[e.loanIndex] ? loans[e.loanIndex].name : '';
+      const modeLabel = e.mode === 'reducepayment' ? '降低月付金' : '縮短年限';
+      return `
+        <tr class="extra-row">
+          <td colspan="6">
+            <span class="extra-badge">大筆還款</span>${escapeHtml(loanName)} 多還 ${fmtMoney(e.amount)} · ${modeLabel}${e.date ? ' · '+fmtDate(e.date):''}${e.note ? ' · '+escapeHtml(e.note):''}
+          </td>
+        </tr>
+      `;
+    }).join('') : '';
+    return mainRow + extraRows;
+  }).join('');
+  return `
+    <div class="ledger">
+      <div class="ledger-header">
+        <h3>還款明細</h3>
+        <span>本金 / 利息 / 應繳金額(合計)</span>
+      </div>
+      <div class="ledger-scroll">
+        <table>
+          <thead>
+            <tr><th>期別</th><th>應繳日</th><th>本金</th><th>利息</th><th>應繳</th><th>狀態</th></tr>
+          </thead>
+          <tbody>${preRowsHtml}${rowsHtml}</tbody>
+        </table>
+      </div>
+    </div>
+    <footer class="note">試算結果僅供參考,實際還款金額與利率調整請以貸款銀行提供之數字為準。</footer>
+  `;
+}
+
+function bindMain(rows){
+  document.getElementById('edit-cover').onclick = () => {
+    draftLoans = JSON.parse(JSON.stringify(state.config.loans));
+    document.getElementById('app').innerHTML = renderSetup();
+    bindSetup();
+  };
+  const quickBtn = document.getElementById('quick-mark');
+  if(quickBtn) quickBtn.onclick = () => openMarkModal(parseInt(quickBtn.dataset.period), rows);
+
+  document.querySelectorAll('[data-action="mark"]').forEach(btn => {
+    btn.onclick = () => openMarkModal(parseInt(btn.dataset.period), rows);
+  });
+  document.querySelectorAll('[data-action="unmark"]').forEach(btn => {
+    btn.onclick = async () => {
+      const period = parseInt(btn.dataset.period);
+      delete state.payments[period];
+      await saveData();
+      render();
+    };
+  });
+
+  const addExtraBtn = document.getElementById('add-extra');
+  if(addExtraBtn) addExtraBtn.onclick = () => openExtraModal(state.config.loans, rows);
+
+  document.querySelectorAll('[data-extra-id]').forEach(btn => {
+    btn.onclick = async () => {
+      const id = btn.dataset.extraId;
+      state.extraPayments = (state.extraPayments||[]).filter(e => String(e.id) !== id);
+      await saveData();
+      render();
+    };
+  });
+}
+
+function openExtraModal(loans, combinedRows){
+  const overlay = document.getElementById('overlay');
+  const modal = document.getElementById('modalBody');
+  const today = new Date().toISOString().slice(0,10);
+  const loanOptions = loans.map((l, idx) => `<option value="${idx}">${escapeHtml(l.name)}</option>`).join('');
+
+  const describePosition = (dateStr) => {
+    const period = periodForDate(combinedRows, dateStr);
+    const cur = combinedRows.find(r => r.period === period);
+    const next = combinedRows.find(r => r.period === period + 1);
+    if(period === 0){
+      return next ? `會插入在第 1 期(應繳日 ${fmtDate(next.dueDate)})之前` : '會套用在第 1 期之前';
+    }
+    if(!next){
+      return `會插入在第 ${period} 期(應繳日 ${fmtDate(cur.dueDate)})之後`;
+    }
+    return `會插入在第 ${period} 期(應繳日 ${fmtDate(cur.dueDate)})與第 ${period+1} 期(應繳日 ${fmtDate(next.dueDate)})之間`;
+  };
+
+  modal.innerHTML = `
+    <h3>登記大筆還款</h3>
+    <p class="sub" id="e-position">${describePosition(today)}</p>
+    <div class="field">
+      <label>適用貸款</label>
+      <select id="e-loan">${loanOptions}</select>
+    </div>
+    <div class="field">
+      <label>實際還款日期</label>
+      <input id="e-date" type="date" value="${today}">
+      <div class="subhint">系統會依應繳日,自動對應排入正確的還款明細位置</div>
+    </div>
+    <div class="field">
+      <label>多還本金金額</label>
+      <input id="e-amount" type="number" placeholder="例如:200000">
+    </div>
+    <div class="field">
+      <label>還款方式</label>
+      <select id="e-mode">
+        <option value="reducepayment" selected>降低月付金(年限不變)</option>
+        <option value="reduceterm">縮短年限(月付金不變)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>備註(選填)</label>
+      <input id="e-note" type="text" placeholder="例如:年終獎金部分還款">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="e-cancel">取消</button>
+      <button class="btn-primary" id="e-save">確認登記</button>
+    </div>
+  `;
+  overlay.classList.add('show');
+  document.getElementById('e-date').oninput = (ev) => {
+    document.getElementById('e-position').textContent = describePosition(ev.target.value);
+  };
+  document.getElementById('e-cancel').onclick = () => overlay.classList.remove('show');
+  document.getElementById('e-save').onclick = async () => {
+    const loanIndex = parseInt(document.getElementById('e-loan').value);
+    const date = document.getElementById('e-date').value;
+    const afterPeriod = periodForDate(combinedRows, date);
+    const amount = parseFloat(document.getElementById('e-amount').value);
+    const mode = document.getElementById('e-mode').value;
+    const note = document.getElementById('e-note').value.trim();
+    if(!amount || amount <= 0 || !date){ return; }
+    if(!state.extraPayments) state.extraPayments = [];
+    state.extraPayments.push({ id: Date.now()+'-'+Math.random().toString(36).slice(2,7), loanIndex, afterPeriod, amount, mode, date, note });
+    overlay.classList.remove('show');
+    await saveData();
+    render();
+  };
+}
+
+function openMarkModal(period, rows){
+  const row = rows.find(r => r.period === period);
+  const overlay = document.getElementById('overlay');
+  const modal = document.getElementById('modalBody');
+  const today = new Date().toISOString().slice(0,10);
+  const detail = row.parts.map(p => `${escapeHtml(p.name)}: ${fmtMoney(p.payment)}${p.isGrace?'(寬限期僅繳息)':''}`).join(' ・ ');
+  modal.innerHTML = `
+    <h3>登記第 ${period} 期還款</h3>
+    <p class="sub">應繳日 ${fmtDate(row.dueDate)} · 應繳合計 ${fmtMoney(row.payment)}<br>${detail}</p>
+    <div class="field">
+      <label>實際還款日期</label>
+      <input id="m-date" type="date" value="${today}">
+    </div>
+    <div class="field">
+      <label>實際還款金額(合計)</label>
+      <input id="m-amount" type="number" value="${Math.round(row.payment)}">
+    </div>
+    <div class="field">
+      <label>備註(選填)</label>
+      <input id="m-note" type="text" placeholder="例如:提前還款一部分本金">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="m-cancel">取消</button>
+      <button class="btn-primary" id="m-save">確認登記</button>
+    </div>
+  `;
+  overlay.classList.add('show');
+  document.getElementById('m-cancel').onclick = () => overlay.classList.remove('show');
+  document.getElementById('m-save').onclick = async () => {
+    const date = document.getElementById('m-date').value;
+    const amount = parseFloat(document.getElementById('m-amount').value) || row.payment;
+    const note = document.getElementById('m-note').value.trim();
+    state.payments[period] = { paid: true, date, amount, note };
+    overlay.classList.remove('show');
+    await saveData();
+    render();
+  };
+}
+
+const importInput = document.getElementById('import-file-input');
+if(importInput) importInput.onchange = handleImportFile;
+
+loadData();
+</script>
+</body>
+</html>
